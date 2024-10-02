@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sports Stats Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #1a1a1a; color: white; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .chart-container { margin-top: 20px; background-color: #2a2a2a; padding: 20px; border-radius: 8px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 20px; }
+        .stat-card { background-color: #2a2a2a; padding: 20px; border-radius: 8px; text-align: center; }
+        .stat-value { font-size: 24px; font-weight: bold; margin-top: 10px; }
+        select { background-color: #3a3a3a; color: white; padding: 5px; border: none; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 id="playerName">Player Stats</h1>
+        <select id="statSelect">
+            <option value="passYards">Pass Yards</option>
+            <option value="rushYards">Rush Yards</option>
+            <option value="totalYards">Total Yards</option>
+        </select>
+        <div class="chart-container">
+            <canvas id="statsChart"></canvas>
+        </div>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Hit Rate</h3>
+                <div id="hitRate" class="stat-value"></div>
+            </div>
+            <div class="stat-card">
+                <h3>Average</h3>
+                <div id="average" class="stat-value"></div>
+            </div>
+            <div class="stat-card">
+                <h3>Projection</h3>
+                <div id="projection" class="stat-value"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let playerData = {
+            "name": "Kirk Cousins",
+            "position": "QB",
+            "hitRate": 75,
+            "average": 216,
+            "projection": 226.5,
+            "games": [{
+                    "opponent": "LAC",
+                    "passYards": 367,
+                    "rushYards": 5,
+                    "totalYards": 372,
+                    "date": "9/24/23"
+                },
+                {
+                    "opponent": "@CAR",
+                    "passYards": 139,
+                    "rushYards": 2,
+                    "totalYards": 141,
+                    "date": "10/1/23"
+                },
+                {
+                    "opponent": "KC",
+                    "passYards": 284,
+                    "rushYards": 12,
+                    "totalYards": 296,
+                    "date": "10/8/23"
+                },
+                {
+                    "opponent": "@CHI",
+                    "passYards": 181,
+                    "rushYards": 3,
+                    "totalYards": 184,
+                    "date": "10/15/23"
+                },
+                {
+                    "opponent": "SF",
+                    "passYards": 378,
+                    "rushYards": -1,
+                    "totalYards": 377,
+                    "date": "10/23/23"
+                },
+                {
+                    "opponent": "@GB",
+                    "passYards": 274,
+                    "rushYards": 6,
+                    "totalYards": 280,
+                    "date": "10/29/23"
+                },
+                {
+                    "opponent": "PIT",
+                    "passYards": 155,
+                    "rushYards": 8,
+                    "totalYards": 163,
+                    "date": "9/08"
+                },
+                {
+                    "opponent": "@PHI",
+                    "passYards": 241,
+                    "rushYards": 11,
+                    "totalYards": 252,
+                    "date": "9/16"
+                },
+                {
+                    "opponent": "KC",
+                    "passYards": 230,
+                    "rushYards": 7,
+                    "totalYards": 237,
+                    "date": "9/22"
+                },
+                {
+                    "opponent": "NO",
+                    "passYards": 238,
+                    "rushYards": 4,
+                    "totalYards": 242,
+                    "date": "9/29"
+                }
+            ]
+        };
+
+        let chart;
+
+        function updateDashboard() {
+            document.getElementById('playerName').textContent = `${playerData.name} (${playerData.position})`;
+            document.getElementById('hitRate').textContent = `${playerData.hitRate}%`;
+            document.getElementById('average').textContent = playerData.average;
+            document.getElementById('projection').textContent = playerData.projection;
+
+            updateChart();
+        }
+
+        function updateChart() {
+            const statType = document.getElementById('statSelect').value;
+            const chartData = playerData.games.map(game => ({
+                opponent: game.opponent,
+                value: game[statType]
+            }));
+
+            const ctx = document.getElementById('statsChart').getContext('2d');
+            
+            if (chart) {
+                chart.destroy();
+            }
+
+            chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: chartData.map(d => d.opponent),
+                    datasets: [{
+                        label: statType.charAt(0).toUpperCase() + statType.slice(1),
+                        data: chartData.map(d => d.value),
+                        backgroundColor: '#4ade80'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        document.getElementById('statSelect').addEventListener('change', updateChart);
+
+        updateDashboard();
+    </script>
+</body>
+</html>
